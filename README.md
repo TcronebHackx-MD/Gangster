@@ -22,7 +22,14 @@
 ### 2. GET SESSION-ID HERE 
 
 <a href='https://express-pairing-code2.onrender.com/' target="_blank"><img alt='GET SESSION-ID' src='https://img.shields.io/badge/Click here to get your SESSION-ID-blue?style=for-the-badge&logo=opencv&logoColor=white'/></a> 
-<a><img src='https://i.imgur.com/LyHic3i.gif'/></a>    
+<a><img src='https://i.imgur.com/LyHic3i.gif'/></a>  
+
+
+## `NEW DEPLOYMENT`
+NOW Deploy👇
+<br>
+## DEPLOY IN KOYEB    
+[![Deploy on Koyeb](https://www.koyeb.com/static/images/deploy/button.svg)](https://app.koyeb.com/auth/signup)  
 
   
 ### DEPLOY ON REPLIT
