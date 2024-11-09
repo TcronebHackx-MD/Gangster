@@ -1,167 +1,80 @@
-import fetch from "node-fetch";
-import ytdl from 'youtubedl-core';
-import yts from 'youtube-yts';
-import fs from 'fs';
-import { pipeline } from 'stream';
-import { promisify } from 'util';
-import os from 'os';
+const { zokou } = require("../framework/zokou");
+const yts = require('yt-search');
+const ytdl = require('ytdl-core');
+const fs = require('fs');
+const yt=require("../framework/dl/ytdl-core.js")
+const ffmpeg = require("fluent-ffmpeg");
+const yts1 = require("youtube-yts");
+//var fs =require("fs-extra")
 
-const streamPipeline = promisify(pipeline);
+zokou({
+  nomCom: "song",
+  categorie: "Search",
+  reaction: "🎶"
+}, async (origineMessage, zk, commandeOptions) => {
+  const { ms, repondre, arg } = commandeOptions;
+     
+  if (!arg[0]) {
+    repondre("wrong!!! Ie. _Play hozambe by Beltah ft shifura._");
+    return;
+  }
 
-const handler = async (m, {
-    conn,
-    command,
-    text,
-    args,
-    usedPrefix
-}) => {
-    if (!text) throw `give a text to search Example: *${usedPrefix + command}* Jesus Christ song`;
-    conn.GURUPLAY = conn.GURUPLAY ? conn.GURUPLAY : {};
-    await conn.reply(m.chat, wait, m);
-    const result = await searchAndDownloadMusic(text);
-    const infoText = `🔰──『 *XLICON-V2 PLAYER* 』── 🔰`;
+  try {
+    let topo = arg.join(" ")
+    const search = await yts(topo);
+    const videos = search.videos;
 
-const orderedLinks = result.allLinks.map((link, index) => {
-    const sectionNumber = index + 1;
-    const {
-        title,
-        url
-    } = link;
-    return `*${sectionNumber}.* ${title}`;
-});
+    if (videos && videos.length > 0 && videos[0]) {
+      const urlElement = videos[0].url;
+          
+       let infoMess = {
+          image: {url : videos[0]. thumbnail},
+         caption : `\nGANGSTER 𝑴𝑫 𝑺𝑶𝑵𝑮 𝑷𝑳𝑨𝒀𝑬𝑹‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎\n\n*Audio name :* _${videos[0].title}_
 
-    const orderedLinksText = orderedLinks.join("\n\n");
-    const fullText = `${infoText}\n\n${orderedLinksText}`;
-    const {
-        key
-    } = await conn.reply(m.chat, fullText, m);
-    conn.GURUPLAY[m.sender] = {
-        result,
-        key,
-        timeout: setTimeout(() => {
-            conn.sendMessage(m.chat, {
-                delete: key
-            });
-            delete conn.GURUPLAY[m.sender];
-        }, 60 * 1000),
-    };
-};
+*Time :* _${videos[0].timestamp}_
 
-handler.before = async (m, {
-    conn
-}) => {
-    conn.GURUPLAY = conn.GURUPLAY ? conn.GURUPLAY : {};
-    if (m.isBaileys || !(m.sender in conn.GURUPLAY)) return;
-    const {
-        result,
-        key,
-        timeout
-    } = conn.GURUPLAY[m.sender];
-    if (!m.quoted || m.quoted.id !== key.id || !m.text) return;
-    const choice = m.text.trim();
-    const inputNumber = Number(choice);
-    if (inputNumber >= 1 && inputNumber <= result.allLinks.length) {
-        const selectedUrl = result.allLinks[inputNumber - 1].url;
-        console.log("selectedUrl", selectedUrl)
-    let title = generateRandomName();
-        const audioStream = ytdl(selectedUrl, {
-            filter: 'audioonly',
-            quality: 'highestaudio',
-        });
-    
+*Url :* _${videos[0].url}_
+
+
+_*©GANGSTER IBBOT XMD*_`
+       }
+
       
-        
-        const tmpDir = os.tmpdir();
-        
-        
-        const writableStream = fs.createWriteStream(`${tmpDir}/${title}.mp3`);
-    
-        
-        await streamPipeline(audioStream, writableStream);
 
-        const doc = {
-            audio: {
-            url: `${tmpDir}/${title}.mp3`
-            },
-            mimetype: 'audio/mpeg',
-            ptt: false,
-            waveform: [100, 0, 0, 0, 0, 0, 100],
-            fileName: `${title}`,
-        
-        };
-    
-        await conn.sendMessage(m.chat, doc, { quoted: m });
-    
-    
-        clearTimeout(timeout);
-        delete conn.GURUPLAY[m.sender];
+      
+
+      
+       zk.sendMessage(origineMessage,infoMess,{quoted:ms}) ;
+      // Obtenir le flux audio de la vidéo
+      const audioStream = ytdl(urlElement, { filter: 'audioonly', quality: 'highestaudio' });
+
+      // Nom du fichier local pour sauvegarder le fichier audio
+      const filename = 'audio.mp3';
+
+      // Écrire le flux audio dans un fichier local
+      const fileStream = fs.createWriteStream(filename);
+      audioStream.pipe(fileStream);
+
+      fileStream.on('finish', () => {
+        // Envoi du fichier audio en utilisant l'URL du fichier local
+      
+
+     zk.sendMessage(origineMessage, { audio: { url:"audio.mp3"},mimetype:'audio/mp4' }, { quoted: ms,ptt: false });
+        console.log("Envoi du fichier audio terminé !");
+
+     
+      });
+
+      fileStream.on('error', (error) => {
+        console.error('Erreur lors de l\'écriture du fichier audio :', error);
+        repondre('Une erreur est survenue lors de l\'écriture du fichier audio.');
+      });
     } else {
-        m.reply("Invalid sequence number. Please select the appropriate number from the list above.\nBetween 1 to " + result.allLinks.length);
+      repondre('Aucune vidéo trouvée.');
     }
-};
-
-handler.help = ["play3"];
-handler.tags = ["downloader"];
-handler.command = /^(play3)$/i;
-handler.limit = true;
-export default handler;
-
-function formatBytes(bytes, decimals = 2) {
-    if (bytes === 0) return "0 B";
-    const k = 1024;
-    const dm = decimals < 0 ? 0 : decimals;
-    const sizes = ["B", "KB", "MB", "GB", "TB", "PB", "EB", "ZB", "YB"];
-    const i = Math.floor(Math.log(bytes) / Math.log(k));
-    return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + " " + sizes[i];
-}
-
-async function searchAndDownloadMusic(query) {
-    try {
-        const { videos } = await yts(query);
-        if (!videos.length) return "Sorry, no video results were found for this search.";
-
-        const allLinks = videos.map(video => ({
-            title: video.title,
-            url: video.url,
-        }));
-
-        const jsonData = {
-            title: videos[0].title,
-            description: videos[0].description,
-            duration: videos[0].duration,
-            author: videos[0].author.name,
-            allLinks: allLinks,
-            videoUrl: videos[0].url,
-            thumbnail: videos[0].thumbnail,
-        };
-
-        return jsonData;
-    } catch (error) {
-        return "Error: " + error.message;
-    }
-}
-
-
-async function fetchVideoBuffer() {
-    try {
-        const response = await fetch(url, {
-            method: 'GET',
-            headers: {
-                'Access-Control-Allow-Origin': '*'
-            }
-        });
-        return await response.buffer();
-    } catch (error) {
-        return null;
-    }
-}
-
-function generateRandomName() {
-    const adjectives = ["happy", "sad", "funny", "brave", "clever", "kind", "silly", "wise", "gentle", "bold"];
-    const nouns = ["cat", "dog", "bird", "tree", "river", "mountain", "sun", "moon", "star", "cloud"];
+  } catch (error) {
+    console.error('Erreur lors de la recherche ou du téléchargement de la vidéo :', error);
     
-    const randomAdjective = adjectives[Math.floor(Math.random() * adjectives.length)];
-    const randomNoun = nouns[Math.floor(Math.random() * nouns.length)];
-    
-    return randomAdjective + "-" + randomNoun;
-        }
+    repondre('Une erreur est survenue lors de la recherche ou du téléchargement de la vidéo.');
+  }
+});
