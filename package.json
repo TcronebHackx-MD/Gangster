@@ -25,21 +25,22 @@
         "MD",
         "baileys-md"
     ],
-    "homepage": "https://github.com/Dark-Town/Gangster",
+    "homepage": "https://github.com/salmanytofficial/XLICON-V2-MD",
     "author": {
         "name": "GURU"
     },
     "repository": {
         "type": "git",
-        "url": "git+https://github.com/Dark-Town/Gangster.git"
+        "url": "git+https://github.com/salmanytofficial/XLICON-V2-MD.git"
     },
     "bugs": {
-        "url": "https://github.com/Dark-Town/Gangster/issues"
+        "url": "https://github.com/salmanytofficial/XLICON-V2-MD/issues"
     },
     "license": "Apache License 2.0",
     "dependencies": {
         "@adiwajshing/keyed-db": "^0.2.4",
         "@bochilteam/scraper": "^5.0.1",
+        "@bochilteam/scraper-sosmed": "^1.0.5",
         "@google/generative-ai": "0.1.3",
         "@shineiichijo/marika": "^2.0.6",
         "@shizodevs/wabotmodule": "1.6.0",
@@ -114,9 +115,10 @@
         "xfarr-api": "^1.0.3",
         "yargs": "^17.6.0",
         "youtube-yts": "^2.0.0",
-        "youtubedl-core": "npm:@distube/ytdl-core"
+        "youtubedl-core": "npm:@distube/ytdl-core",
+        "yt-search": "^2.12.1"
     },
     "overrides": {
         "cache-manager": "5.2.2"
     }
-}
+    }
