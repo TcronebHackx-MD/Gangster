@@ -1,44 +1,35 @@
-//thanks To Guru
+const { bot, IsSpotify, isUrl, dowloadTrack, getSpotifyPlaylist } = require('../lib/')
 
-import fetch from 'node-fetch';
-import displayLoadingScreen from '../lib/loading.js';
-let handler = async (m, { conn, text }) => {
-    if (!text) {
-        console.log('No song name provided.');
-        throw `*Please enter a song name*`;
+bot(
+  {
+    pattern: 'spotify ?(.*)',
+    desc: 'download track or playlist',
+    type: 'download',
+  },
+  async (message, match) => {
+    match = match || message.reply_message.text || ''
+    const spotify = IsSpotify(match)
+    if (!spotify) return await message.send('*Example :* spotify track url | playlist url')
+    match = isUrl(match)
+    if (spotify === 'track') {
+      const track = await dowloadTrack(match)
+      return await message.send(
+        track.buffer,
+        { fileName: track.title, quoted: message.data, mimetype: 'audio/mpeg' },
+        'document'
+      )
     }
-  m.react('🎶')
-  await displayLoadingScreen(conn, m.chat);
-  let pp = 'https://wallpapercave.com/wp/wp7932387.jpg'
-    const query = encodeURIComponent(text);
-    let res = `https://guruapi.tech/api/spotifydl?url=${query}`
-   // let spotify = await (await fetch(res)).buffer()
-    let doc = {
-        audio: {
-          url: res
-        },
-        mimetype: 'audio/mpeg',
-        ptt: true,
-        waveform:  [100, 0, 100, 0, 100, 0, 100],
-        fileName: "XLICON.mp3",
-    
-        contextInfo: {
-          mentionedJid: [m.sender],
-          externalAdReply: {
-            title: "↺ |◁   II   ▷|   ♡",
-            body: `Now playing: ${text}`,
-            thumbnailUrl: pp,
-            sourceUrl: null,
-            mediaType: 1,
-            renderLargerThumbnail: false
-          }
-        }
-    };
-    
-    await conn.sendMessage(m.chat, doc, { quoted: m });
-}
-handler.help = ['spotify'];
-handler.tags = ['downloader'];
-handler.command = /^(spotify|song)$/i;
-
-export default handler;
+    const playlist = await getSpotifyPlaylist(match)
+    await message.send(`_downloading ${playlist.length} tracks..._`)
+    for (const song of playlist) {
+      try {
+        const track = await dowloadTrack(song.title)
+        await message.send(
+          track.buffer,
+          { fileName: track.title, quoted: message.data, mimetype: 'audio/mpeg' },
+          'document'
+        )
+      } catch (error) {}
+    }
+  }
+)
